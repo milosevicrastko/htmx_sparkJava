@@ -2,23 +2,26 @@ package org.example;
 
 public class DynamicPage {
 
-    static String getDynamicPage(int counter) {
-        return """
-                                
-                <!DOCTYPE html>
-                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Title</title>
-                    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-                </head>
-                <body>
-                <label></label>
+    static String getDynamicPage(String htmxScript, int counter) {
 
+        String htmxScriptWithTag =
+                "<script src= \" " + htmxScript + " \"></script>";
+        return """                             
+                <!DOCTYPE html>
+                <html>
+                <head>""" + htmxScriptWithTag + """
+                </head>"""
+                + getPageBody(counter) +
+                """ 
+                        </html>""";
+    }
+
+    static String getPageBody(int counter) {
+        return """
+                <body>
                 Count:""" + counter + """
                 <button hx-target = "body" hx-get = "/increment-counter">count</button>
                 </body>
-                </html>
                 """;
     }
 }

@@ -3,17 +3,15 @@ package org.example;
 import static spark.Spark.*;
 
 public class Main {
+    static int counter = 0;
+
+    static String htmxLink = "https://unpkg.com/htmx.org@1.9.10";
+
     public static void main(String[] args) {
         initializeApplication();
         initializeRoutes();
     }
 
-     static int counter = 0;
-
-    private static void incrementCounter() {
-        counter++;
-        System.out.println(counter);
-    }
 
     private static void initializeApplication() {
         port(8080);
@@ -21,7 +19,10 @@ public class Main {
     }
 
     private static void initializeRoutes() {
-        get("/increment-counter", (req, res) -> {incrementCounter(); return DynamicPage.getDynamicPage(counter);});
-        get("/", (req, res) -> DynamicPage.getDynamicPage(counter));
+        get("/increment-counter", (req, res) -> {
+            counter++;
+            return DynamicPage.getPageBody(counter);
+        });
+        get("/", (req, res) -> DynamicPage.getDynamicPage(htmxLink, counter));
     }
 }
