@@ -1,10 +1,13 @@
 package org.example;
 
-import java.util.List;
+import java.util.Set;
 
 public class DynamicPage {
 
-    static String getDynamicPage(String htmxScript, List<Person> persons) {
+    private DynamicPage() {
+    }
+
+    static String getDynamicPage(String htmxScript) {
 
         String htmxScriptWithTag =
                 "<script src= \" " + htmxScript + " \"></script>" +
@@ -21,14 +24,12 @@ public class DynamicPage {
         return """                             
                 <!DOCTYPE html>
                 <html>
-                <head>""" + htmxScriptWithTag + """
-                </head>"""
-                + getPersonForm(persons) +
-                """ 
-                        </html>""";
+                <head>""" + htmxScriptWithTag + "</head>"
+                + getPersonFormInitial() +
+                "</html>";
     }
 
-    static String getPersonForm(List<Person> persons) {
+    static String getPersonFormInitial() {
         return """
                 <body>
                     <form>
@@ -36,7 +37,7 @@ public class DynamicPage {
                         <input type = "text" name = "lastName" id = "lastName"></input>
                     </form>
                     <div id = "all-persons">
-                    """ + replacePersonsWithHtml(persons) +"""
+                    """ + replacePersonsWithHtml(null) +"""
                     </div>
                     <button hx-vals = 'js:{firstName: getFirstName(), lastName : getLastName()}' hx-post = "/add-person" hx-trigger = "click" hx-target = "#all-persons"> ADD </button>
                 </body>
@@ -44,15 +45,20 @@ public class DynamicPage {
 
     }
 
-    static String replacePersonsWithHtml(List<Person> persons) {
+    static String personAlreadyExistsValidation(Set<Person> persons, String message) {
+        String validation = "<div style = \"color: red\">"+message+"</div>";
+        return validation + replacePersonsWithHtml(persons);
+    }
+
+    static String replacePersonsWithHtml(Set<Person> persons) {
         if (persons == null || persons.isEmpty()) {
             return "<div>No persons present</div>";
          }
         StringBuilder sb = new StringBuilder();
         for(Person person: persons) {
             sb.append("<ul>");
-            sb.append(person.getFirstName()+ " ");
-            sb.append(person.getLastName());
+            sb.append(person.firstName()+ " ");
+            sb.append(person.lastName());
             sb.append("</ul>");
         }
         return sb.toString();

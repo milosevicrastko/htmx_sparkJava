@@ -1,14 +1,16 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.List;
+import spark.Request;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static spark.Spark.*;
 
 public class Main {
     static String htmxLink = "https://unpkg.com/htmx.org@1.9.10";
 
-    static List<Person> persons = new ArrayList<>();
+    static Set<Person> persons = new HashSet<>();
 
     public static void main(String[] args) {
         initializeApplication();
@@ -22,29 +24,45 @@ public class Main {
     }
 
     private static void initializeRoutes() {
-        get("/", (req, res) -> DynamicPage.getDynamicPage(htmxLink, persons));
-        post("/add-person", (req, res) -> {
-            addPersonToList(getFirstNameFromRequest(req.body()), getLastNameFromRequest(req.body()));
+        get("/", (req, res) -> DynamicPage.getDynamicPage(htmxLink));
+        post("/add-person", (req, res) -> addPersonToHtml(req));
+    }
+
+    static String addPersonToHtml(Request req) {
+        try {
+            Person person = new Person(getFirstNameFromRequest(req.body()), getLastNameFromRequest(req.body()));
+            checkIfPersonAlreadyExists(person);
+            checkIfEntryIsNotEmpty(person);
+            persons.add(person);
             return DynamicPage.replacePersonsWithHtml(persons);
-        });
+        } catch ( ValidationException e) {
+            return DynamicPage.personAlreadyExistsValidation(persons, e.getMessage());
+        }
     }
 
-    private static void addPersonToList(String firstName, String lastName) {
-        Person newPerson = new Person(firstName, lastName);
-        persons.add(newPerson);
+    static void checkIfPersonAlreadyExists(Person person) throws ValidationException {
+        if (persons.contains(person)) {
+            throw new ValidationException("Person already exists");
+        }
     }
 
+    static void checkIfEntryIsNotEmpty(Person person) throws ValidationException {
+        String firstName = person.firstName();
+        String lastName = person.lastName();
 
+        if (firstName.isBlank() || lastName.isBlank()) {
+            throw new ValidationException("First name and last name are mandatory");
+        }
+    }
     private static String getFirstNameFromRequest(String body) {
         int firstIndex = body.indexOf("firstName=") + "firstName=".length();
-        int secondIndex = body.indexOf("&lastName=") ;
+        int secondIndex = body.indexOf("&lastName=");
         return body.substring(firstIndex, secondIndex);
 
     }
 
     private static String getLastNameFromRequest(String body) {
-        int beginIndex = body.indexOf("&lastName=") + "&lastName=".length() ;
+        int beginIndex = body.indexOf("&lastName=") + "&lastName=".length();
         return body.substring(beginIndex);
-
     }
 }
