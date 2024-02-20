@@ -26,6 +26,7 @@ public class Main {
     private static void initializeRoutes() {
         get("/", (req, res) -> DynamicPage.getDynamicPage(htmxLink));
         post("/add-person", (req, res) -> addPersonToHtml(req));
+        delete("/delete-person", (req, res) -> removePersonFromHtml(req));
     }
 
     static String addPersonToHtml(Request req) {
@@ -38,6 +39,14 @@ public class Main {
         } catch ( ValidationException e) {
             return DynamicPage.personAlreadyExistsValidation(persons, e.getMessage());
         }
+    }
+
+    static String removePersonFromHtml(Request req) {
+        Person person = new Person(getFirstNameFromRequest(req.body()), getLastNameFromRequest(req.body()));
+        if (persons.contains(person)) {
+            persons.remove(person);
+        }
+        return DynamicPage.replacePersonsWithHtml(persons);
     }
 
     static void checkIfPersonAlreadyExists(Person person) throws ValidationException {

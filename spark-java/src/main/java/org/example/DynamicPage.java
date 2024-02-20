@@ -59,6 +59,7 @@ public class DynamicPage {
             sb.append("<ul>");
             sb.append(person.firstName()+ " ");
             sb.append(person.lastName());
+            sb.append("<button hx-vals = '{\"firstName\":\""+ person.firstName() +"\", \"lastName\" :\"" + person.lastName()+ "\"}' hx-delete = \"/delete-person\" hx-target = \"#all-persons\">Delete</button>");
             sb.append("</ul>");
         }
         return sb.toString();
