@@ -12,6 +12,7 @@ public class DynamicPage {
         String htmxScriptWithTag =
                 "<script src= \" " + htmxScript + " \"></script>" +
                         """
+                                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
                                 <script>
                                     function getFirstName() {
                                        return document.getElementById("firstName").value;
@@ -32,6 +33,7 @@ public class DynamicPage {
     static String getPersonFormInitial() {
         return """
                 <body>
+                    <div >
                     <form>
                         <input type = "text" name = "firstName" id = "firstName"></input>
                         <input type = "text" name = "lastName" id = "lastName"></input>
@@ -39,7 +41,8 @@ public class DynamicPage {
                     <div id = "all-persons">
                     """ + replacePersonsWithHtml(null) +"""
                     </div>
-                    <button hx-vals = 'js:{firstName: getFirstName(), lastName : getLastName()}' hx-post = "/add-person" hx-trigger = "click" hx-target = "#all-persons"> ADD </button>
+                    <button type = "button" class = "btn btn-primary" hx-vals = 'js:{firstName: getFirstName(), lastName : getLastName()}' hx-post = "/add-person" hx-trigger = "click" hx-target = "#all-persons"> ADD </button>
+                    </div>
                 </body>
                 """;
 
@@ -55,13 +58,15 @@ public class DynamicPage {
             return "<div>No persons present</div>";
          }
         StringBuilder sb = new StringBuilder();
+        sb.append("<ul class = \"list-group\">");
         for(Person person: persons) {
-            sb.append("<ul>");
-            sb.append(person.firstName()+ " ");
-            sb.append(person.lastName());
-            sb.append("<button hx-vals = '{\"firstName\":\""+ person.firstName() +"\", \"lastName\" :\"" + person.lastName()+ "\"}' hx-delete = \"/delete-person\" hx-target = \"#all-persons\">Delete</button>");
-            sb.append("</ul>");
+            sb.append("<li class = \"list-group-item\">");
+            sb.append(person.firstName()).append(" ");
+            sb.append(person.lastName()).append(" ");
+            sb.append("<button type = \"button\" class = \"btn btn-danger\" hx-vals = '{\"firstName\":\"").append(person.firstName()).append("\", \"lastName\" :\"").append(person.lastName()).append("\"}' hx-delete = \"/delete-person\" hx-target = \"#all-persons\">Delete</button>");
+            sb.append("</li>");
         }
+        sb.append("</ul>");
         return sb.toString();
     }
 }
