@@ -24,9 +24,15 @@ public class Main {
     }
 
     private static void initializeRoutes() {
-        get("/", (req, res) -> DynamicPage.getDynamicPage(htmxLink));
+        get("/", (req, res) -> DynamicPage.getDynamicPage(htmxLink, persons));
         post("/add-person", (req, res) -> addPersonToHtml(req));
         delete("/delete-person", (req, res) -> removePersonFromHtml(req));
+        post("/person-more", (req, res) -> displayMorePage(req));
+    }
+
+    static String displayMorePage(Request req) {
+        Person person = new Person(getFirstNameFromRequest(req.body()), getLastNameFromRequest(req.body()));
+        return DynamicPage.getPageFromPerson(person);
     }
 
     static String addPersonToHtml(Request req) {

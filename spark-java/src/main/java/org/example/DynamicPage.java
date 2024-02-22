@@ -7,7 +7,7 @@ public class DynamicPage {
     private DynamicPage() {
     }
 
-    static String getDynamicPage(String htmxScript) {
+    static String getDynamicPage(String htmxScript, Set<Person> persons) {
 
         String htmxScriptWithTag =
                 "<script src= \" " + htmxScript + " \"></script>" +
@@ -26,20 +26,20 @@ public class DynamicPage {
                 <!DOCTYPE html>
                 <html>
                 <head>""" + htmxScriptWithTag + "</head>"
-                + getPersonFormInitial() +
+                + getPersonFormInitial(persons) +
                 "</html>";
     }
 
-    static String getPersonFormInitial() {
+    static String getPersonFormInitial(Set<Person> persons) {
         return """
                 <body>
-                    <div >
+                    <div id = "main-div" >
                     <form>
                         <input type = "text" name = "firstName" id = "firstName"></input>
                         <input type = "text" name = "lastName" id = "lastName"></input>
                     </form>
                     <div id = "all-persons">
-                    """ + replacePersonsWithHtml(null) +"""
+                    """ + replacePersonsWithHtml(persons) +"""
                     </div>
                     <button type = "button" class = "btn btn-primary" hx-vals = 'js:{firstName: getFirstName(), lastName : getLastName()}' hx-post = "/add-person" hx-trigger = "click" hx-target = "#all-persons"> ADD </button>
                     </div>
@@ -64,9 +64,26 @@ public class DynamicPage {
             sb.append(person.firstName()).append(" ");
             sb.append(person.lastName()).append(" ");
             sb.append("<button type = \"button\" class = \"btn btn-danger\" hx-vals = '{\"firstName\":\"").append(person.firstName()).append("\", \"lastName\" :\"").append(person.lastName()).append("\"}' hx-delete = \"/delete-person\" hx-target = \"#all-persons\">Delete</button>");
+            sb.append("<button type = \"button\" class = \"btn btn-info\" hx-vals = '{\"firstName\":\"").append(person.firstName()).append("\", \"lastName\" :\"").append(person.lastName()).append("\"}' hx-post = \"/person-more\" hx-target = \"#main-div\">Details</button>");
             sb.append("</li>");
         }
         sb.append("</ul>");
         return sb.toString();
+    }
+
+    static String getPageFromPerson(Person person) {
+        return """
+                <div id = "main-div">
+                    <input type = "text" class = "form-control" id = "first-name" value = " """ + person.firstName() + """ 
+                 "
+                 disabled>
+                      </input>
+                   <input type = "text" class = "form-control" id = "first-name" value =" """ + person.lastName()+ """ 
+                "
+                disabled>
+                </input>
+                <button type = "button" class = "btn btn-primary" hx-get = "/" hx-trigger = "click" hx-target = "#main-div"> Back </button>
+                </div>
+                """;
     }
 }
